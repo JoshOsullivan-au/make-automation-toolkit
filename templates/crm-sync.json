@@ -1,0 +1,87 @@
+{
+  "metadata": {
+    "version": 2,
+    "description": "Synchronizes CRM records with Google Sheets for reporting"
+  },
+  "name": "{{clientName}} - CRM to Sheets Sync",
+  "scheduling": {
+    "interval": {{interval}}
+  },
+  "modules": [
+    {
+      "id": 1,
+      "module": "salesforce.searchRecords",
+      "version": 1,
+      "parameters": {
+        "object": "Lead",
+        "query": "SELECT Id, Name, Email, Company, Status FROM Lead WHERE CreatedDate >= {{lastRunDate}}",
+        "limit": 100
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "google-sheets.updateRow",
+      "version": 2,
+      "parameters": {
+        "spreadsheetId": "{{spreadsheetId}}",
+        "sheetName": "{{sheetName}}",
+        "tableFirstRow": "A1:E1",
+        "values": {
+          "0": "{{1.Id}}",
+          "1": "{{1.Name}}",
+          "2": "{{1.Email}}",
+          "3": "{{1.Company}}",
+          "4": "{{1.Status}}"
+        }
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "slack.postMessage",
+      "version": 1,
+      "parameters": {
+        "channel": "#{{slackChannel}}",
+        "text": "CRM Sync Complete: {{1.array.length}} records synchronized"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 600,
+          "y": 0
+        }
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "moduleId": 1
+      },
+      "target": {
+        "moduleId": 2
+      }
+    },
+    {
+      "source": {
+        "moduleId": 2
+      },
+      "target": {
+        "moduleId": 3
+      }
+    }
+  ]
+}
