@@ -1,0 +1,853 @@
+{
+  "categories": {
+    "core": {
+      "name": "Core Tools",
+      "modules": {
+        "webhook": {
+          "customWebhook": {
+            "version": 1,
+            "description": "Triggers scenario via HTTP request",
+            "parameters": {
+              "name": "string",
+              "dataStructure": "object"
+            }
+          },
+          "respond": {
+            "version": 1,
+            "description": "Responds to webhook request",
+            "parameters": {
+              "body": "any",
+              "status": "number",
+              "headers": "array"
+            }
+          }
+        },
+        "http": {
+          "makeRequest": {
+            "version": 3,
+            "description": "Makes HTTP requests to any API",
+            "parameters": {
+              "url": "string",
+              "method": "enum[GET,POST,PUT,DELETE,PATCH]",
+              "headers": "array",
+              "body": "any",
+              "timeout": "number"
+            }
+          },
+          "retrieveHeaders": {
+            "version": 1,
+            "description": "Gets HTTP response headers"
+          }
+        },
+        "flow": {
+          "router": {
+            "version": 1,
+            "description": "Routes execution based on conditions",
+            "parameters": {
+              "routes": "array"
+            }
+          },
+          "aggregator": {
+            "version": 1,
+            "description": "Combines multiple bundles into one",
+            "parameters": {
+              "targetStructure": "array",
+              "groupBy": "string"
+            }
+          },
+          "iterator": {
+            "version": 1,
+            "description": "Splits arrays into individual items",
+            "parameters": {
+              "array": "array"
+            }
+          },
+          "converger": {
+            "version": 1,
+            "description": "Merges multiple execution paths"
+          },
+          "sleep": {
+            "version": 1,
+            "description": "Pauses execution",
+            "parameters": {
+              "delay": "number"
+            }
+          },
+          "throw": {
+            "version": 1,
+            "description": "Throws custom error",
+            "parameters": {
+              "message": "string",
+              "statusCode": "number"
+            }
+          }
+        },
+        "util": {
+          "setVariable": {
+            "version": 1,
+            "description": "Sets a variable value",
+            "parameters": {
+              "name": "string",
+              "value": "any"
+            }
+          },
+          "getVariable": {
+            "version": 1,
+            "description": "Gets a variable value",
+            "parameters": {
+              "name": "string"
+            }
+          },
+          "textParser": {
+            "version": 1,
+            "description": "Parses text using patterns",
+            "parameters": {
+              "text": "string",
+              "pattern": "string"
+            }
+          },
+          "jsonParser": {
+            "version": 1,
+            "description": "Parses JSON string",
+            "parameters": {
+              "jsonString": "string"
+            }
+          },
+          "csvParser": {
+            "version": 1,
+            "description": "Parses CSV data",
+            "parameters": {
+              "csv": "string",
+              "delimiter": "string",
+              "headers": "boolean"
+            }
+          }
+        },
+        "datastore": {
+          "addRecord": {
+            "version": 1,
+            "description": "Adds record to data store",
+            "parameters": {
+              "dataStore": "string",
+              "data": "object"
+            }
+          },
+          "searchRecords": {
+            "version": 1,
+            "description": "Searches records in data store",
+            "parameters": {
+              "dataStore": "string",
+              "filter": "object",
+              "limit": "number"
+            }
+          },
+          "updateRecord": {
+            "version": 1,
+            "description": "Updates record in data store",
+            "parameters": {
+              "dataStore": "string",
+              "recordId": "string",
+              "data": "object"
+            }
+          },
+          "deleteRecord": {
+            "version": 1,
+            "description": "Deletes record from data store",
+            "parameters": {
+              "dataStore": "string",
+              "recordId": "string"
+            }
+          }
+        }
+      }
+    },
+    "productivity": {
+      "name": "Productivity Tools",
+      "modules": {
+        "google-sheets": {
+          "addRow": {
+            "version": 4,
+            "description": "Adds a new row to spreadsheet",
+            "parameters": {
+              "spreadsheetId": "string",
+              "sheetId": "string",
+              "values": "object"
+            }
+          },
+          "updateRow": {
+            "version": 4,
+            "description": "Updates existing row",
+            "parameters": {
+              "spreadsheetId": "string",
+              "sheetId": "string",
+              "rowNumber": "number",
+              "values": "object"
+            }
+          },
+          "searchRows": {
+            "version": 4,
+            "description": "Searches for rows",
+            "parameters": {
+              "spreadsheetId": "string",
+              "sheetId": "string",
+              "filter": "object",
+              "limit": "number"
+            }
+          },
+          "deleteRow": {
+            "version": 4,
+            "description": "Deletes a row",
+            "parameters": {
+              "spreadsheetId": "string",
+              "sheetId": "string",
+              "rowNumber": "number"
+            }
+          },
+          "watchRows": {
+            "version": 2,
+            "description": "Watches for new/updated rows",
+            "parameters": {
+              "spreadsheetId": "string",
+              "sheetId": "string",
+              "limit": "number"
+            }
+          }
+        },
+        "google-drive": {
+          "uploadFile": {
+            "version": 2,
+            "description": "Uploads file to Drive",
+            "parameters": {
+              "folderId": "string",
+              "fileName": "string",
+              "data": "binary"
+            }
+          },
+          "downloadFile": {
+            "version": 2,
+            "description": "Downloads file from Drive",
+            "parameters": {
+              "fileId": "string"
+            }
+          },
+          "createFolder": {
+            "version": 2,
+            "description": "Creates new folder",
+            "parameters": {
+              "name": "string",
+              "parentId": "string"
+            }
+          },
+          "searchFiles": {
+            "version": 2,
+            "description": "Searches for files",
+            "parameters": {
+              "query": "string",
+              "limit": "number"
+            }
+          }
+        },
+        "notion": {
+          "createPage": {
+            "version": 2,
+            "description": "Creates new Notion page",
+            "parameters": {
+              "databaseId": "string",
+              "properties": "object",
+              "content": "array"
+            }
+          },
+          "updatePage": {
+            "version": 2,
+            "description": "Updates Notion page",
+            "parameters": {
+              "pageId": "string",
+              "properties": "object"
+            }
+          },
+          "searchPages": {
+            "version": 2,
+            "description": "Searches Notion pages",
+            "parameters": {
+              "query": "string",
+              "filter": "object"
+            }
+          }
+        },
+        "airtable": {
+          "createRecord": {
+            "version": 2,
+            "description": "Creates Airtable record",
+            "parameters": {
+              "baseId": "string",
+              "tableId": "string",
+              "fields": "object"
+            }
+          },
+          "updateRecord": {
+            "version": 2,
+            "description": "Updates Airtable record",
+            "parameters": {
+              "baseId": "string",
+              "tableId": "string",
+              "recordId": "string",
+              "fields": "object"
+            }
+          },
+          "searchRecords": {
+            "version": 2,
+            "description": "Searches Airtable records",
+            "parameters": {
+              "baseId": "string",
+              "tableId": "string",
+              "filterByFormula": "string",
+              "limit": "number"
+            }
+          }
+        }
+      }
+    },
+    "communication": {
+      "name": "Communication Tools",
+      "modules": {
+        "slack": {
+          "postMessage": {
+            "version": 2,
+            "description": "Posts message to Slack",
+            "parameters": {
+              "channel": "string",
+              "text": "string",
+              "attachments": "array",
+              "blocks": "array"
+            }
+          },
+          "watchMessages": {
+            "version": 2,
+            "description": "Watches for new messages",
+            "parameters": {
+              "channel": "string",
+              "botMention": "boolean"
+            }
+          },
+          "updateMessage": {
+            "version": 2,
+            "description": "Updates existing message",
+            "parameters": {
+              "channel": "string",
+              "ts": "string",
+              "text": "string"
+            }
+          },
+          "uploadFile": {
+            "version": 2,
+            "description": "Uploads file to Slack",
+            "parameters": {
+              "channels": "array",
+              "filename": "string",
+              "data": "binary"
+            }
+          }
+        },
+        "email": {
+          "send": {
+            "version": 2,
+            "description": "Sends email via SMTP",
+            "parameters": {
+              "to": "array",
+              "subject": "string",
+              "content": "string",
+              "attachments": "array"
+            }
+          },
+          "watchEmails": {
+            "version": 2,
+            "description": "Watches for new emails",
+            "parameters": {
+              "folder": "string",
+              "criteria": "object"
+            }
+          }
+        },
+        "sendgrid": {
+          "sendEmail": {
+            "version": 1,
+            "description": "Sends email via SendGrid",
+            "parameters": {
+              "to": "string",
+              "from": "string",
+              "subject": "string",
+              "html": "string",
+              "text": "string"
+            }
+          }
+        },
+        "twilio": {
+          "sendSMS": {
+            "version": 1,
+            "description": "Sends SMS via Twilio",
+            "parameters": {
+              "to": "string",
+              "from": "string",
+              "body": "string"
+            }
+          },
+          "makeCall": {
+            "version": 1,
+            "description": "Makes phone call",
+            "parameters": {
+              "to": "string",
+              "from": "string",
+              "twiml": "string"
+            }
+          }
+        }
+      }
+    },
+    "ai": {
+      "name": "AI & Machine Learning",
+      "modules": {
+        "openai": {
+          "createCompletion": {
+            "version": 1,
+            "description": "Creates text completion",
+            "parameters": {
+              "model": "string",
+              "messages": "array",
+              "temperature": "number",
+              "max_tokens": "number",
+              "response_format": "object"
+            }
+          },
+          "createImage": {
+            "version": 1,
+            "description": "Generates image from text",
+            "parameters": {
+              "prompt": "string",
+              "size": "string",
+              "n": "number"
+            }
+          },
+          "createEmbedding": {
+            "version": 1,
+            "description": "Creates text embeddings",
+            "parameters": {
+              "model": "string",
+              "input": "string"
+            }
+          },
+          "analyzeImage": {
+            "version": 1,
+            "description": "Analyzes image with vision",
+            "parameters": {
+              "model": "string",
+              "image": "binary",
+              "prompt": "string"
+            }
+          }
+        },
+        "anthropic": {
+          "createMessage": {
+            "version": 1,
+            "description": "Creates Claude message",
+            "parameters": {
+              "model": "string",
+              "messages": "array",
+              "max_tokens": "number",
+              "temperature": "number"
+            }
+          }
+        },
+        "google-ai": {
+          "generateContent": {
+            "version": 1,
+            "description": "Generates content with Gemini",
+            "parameters": {
+              "model": "string",
+              "prompt": "string",
+              "temperature": "number"
+            }
+          }
+        }
+      }
+    },
+    "ecommerce": {
+      "name": "E-commerce",
+      "modules": {
+        "shopify": {
+          "watchOrders": {
+            "version": 2,
+            "description": "Watches for new orders",
+            "parameters": {
+              "status": "string",
+              "limit": "number"
+            }
+          },
+          "createOrder": {
+            "version": 2,
+            "description": "Creates new order",
+            "parameters": {
+              "line_items": "array",
+              "customer": "object",
+              "shipping_address": "object"
+            }
+          },
+          "updateInventory": {
+            "version": 2,
+            "description": "Updates product inventory",
+            "parameters": {
+              "inventory_item_id": "string",
+              "quantity": "number"
+            }
+          },
+          "createProduct": {
+            "version": 2,
+            "description": "Creates new product",
+            "parameters": {
+              "title": "string",
+              "description": "string",
+              "variants": "array"
+            }
+          }
+        },
+        "stripe": {
+          "createPaymentIntent": {
+            "version": 1,
+            "description": "Creates payment intent",
+            "parameters": {
+              "amount": "number",
+              "currency": "string",
+              "customer": "string"
+            }
+          },
+          "createCustomer": {
+            "version": 1,
+            "description": "Creates Stripe customer",
+            "parameters": {
+              "email": "string",
+              "name": "string",
+              "metadata": "object"
+            }
+          },
+          "watchEvents": {
+            "version": 1,
+            "description": "Watches for Stripe events",
+            "parameters": {
+              "events": "array"
+            }
+          }
+        }
+      }
+    },
+    "database": {
+      "name": "Databases",
+      "modules": {
+        "mongodb": {
+          "insertDocument": {
+            "version": 1,
+            "description": "Inserts document",
+            "parameters": {
+              "collection": "string",
+              "document": "object"
+            }
+          },
+          "findDocuments": {
+            "version": 1,
+            "description": "Finds documents",
+            "parameters": {
+              "collection": "string",
+              "query": "object",
+              "limit": "number"
+            }
+          },
+          "updateDocument": {
+            "version": 1,
+            "description": "Updates document",
+            "parameters": {
+              "collection": "string",
+              "filter": "object",
+              "update": "object"
+            }
+          }
+        },
+        "mysql": {
+          "executeQuery": {
+            "version": 1,
+            "description": "Executes SQL query",
+            "parameters": {
+              "query": "string",
+              "parameters": "array"
+            }
+          },
+          "insertRow": {
+            "version": 1,
+            "description": "Inserts table row",
+            "parameters": {
+              "table": "string",
+              "data": "object"
+            }
+          }
+        }
+      }
+    },
+    "social": {
+      "name": "Social Media",
+      "modules": {
+        "twitter": {
+          "postTweet": {
+            "version": 2,
+            "description": "Posts a tweet",
+            "parameters": {
+              "text": "string",
+              "media_ids": "array"
+            }
+          },
+          "searchTweets": {
+            "version": 2,
+            "description": "Searches tweets",
+            "parameters": {
+              "query": "string",
+              "max_results": "number"
+            }
+          }
+        },
+        "facebook": {
+          "createPost": {
+            "version": 2,
+            "description": "Creates Facebook post",
+            "parameters": {
+              "page_id": "string",
+              "message": "string",
+              "link": "string"
+            }
+          }
+        },
+        "linkedin": {
+          "shareUpdate": {
+            "version": 1,
+            "description": "Shares LinkedIn update",
+            "parameters": {
+              "text": "string",
+              "visibility": "string"
+            }
+          }
+        }
+      }
+    },
+    "project": {
+      "name": "Project Management",
+      "modules": {
+        "asana": {
+          "createTask": {
+            "version": 2,
+            "description": "Creates Asana task",
+            "parameters": {
+              "project": "string",
+              "name": "string",
+              "notes": "string",
+              "assignee": "string"
+            }
+          },
+          "updateTask": {
+            "version": 2,
+            "description": "Updates Asana task",
+            "parameters": {
+              "task_id": "string",
+              "completed": "boolean",
+              "notes": "string"
+            }
+          }
+        },
+        "trello": {
+          "createCard": {
+            "version": 2,
+            "description": "Creates Trello card",
+            "parameters": {
+              "list_id": "string",
+              "name": "string",
+              "desc": "string"
+            }
+          },
+          "moveCard": {
+            "version": 2,
+            "description": "Moves Trello card",
+            "parameters": {
+              "card_id": "string",
+              "list_id": "string"
+            }
+          }
+        },
+        "jira": {
+          "createIssue": {
+            "version": 2,
+            "description": "Creates Jira issue",
+            "parameters": {
+              "project": "string",
+              "issueType": "string",
+              "summary": "string",
+              "description": "string"
+            }
+          }
+        }
+      }
+    },
+    "dev": {
+      "name": "Development Tools",
+      "modules": {
+        "github": {
+          "createIssue": {
+            "version": 1,
+            "description": "Creates GitHub issue",
+            "parameters": {
+              "owner": "string",
+              "repo": "string",
+              "title": "string",
+              "body": "string"
+            }
+          },
+          "createPullRequest": {
+            "version": 1,
+            "description": "Creates pull request",
+            "parameters": {
+              "owner": "string",
+              "repo": "string",
+              "title": "string",
+              "head": "string",
+              "base": "string"
+            }
+          },
+          "watchWebhook": {
+            "version": 1,
+            "description": "Watches GitHub events",
+            "parameters": {
+              "events": "array"
+            }
+          }
+        },
+        "gitlab": {
+          "createIssue": {
+            "version": 1,
+            "description": "Creates GitLab issue",
+            "parameters": {
+              "project_id": "string",
+              "title": "string",
+              "description": "string"
+            }
+          }
+        }
+      }
+    },
+    "crm": {
+      "name": "CRM Systems",
+      "modules": {
+        "salesforce": {
+          "createRecord": {
+            "version": 2,
+            "description": "Creates Salesforce record",
+            "parameters": {
+              "object": "string",
+              "fields": "object"
+            }
+          },
+          "updateRecord": {
+            "version": 2,
+            "description": "Updates Salesforce record",
+            "parameters": {
+              "object": "string",
+              "id": "string",
+              "fields": "object"
+            }
+          },
+          "searchRecords": {
+            "version": 2,
+            "description": "Searches Salesforce records",
+            "parameters": {
+              "soql": "string"
+            }
+          }
+        },
+        "hubspot": {
+          "createContact": {
+            "version": 2,
+            "description": "Creates HubSpot contact",
+            "parameters": {
+              "email": "string",
+              "properties": "object"
+            }
+          },
+          "createDeal": {
+            "version": 2,
+            "description": "Creates HubSpot deal",
+            "parameters": {
+              "properties": "object",
+              "associations": "array"
+            }
+          }
+        },
+        "pipedrive": {
+          "createPerson": {
+            "version": 1,
+            "description": "Creates Pipedrive person",
+            "parameters": {
+              "name": "string",
+              "email": "array",
+              "phone": "array"
+            }
+          },
+          "createDeal": {
+            "version": 1,
+            "description": "Creates Pipedrive deal",
+            "parameters": {
+              "title": "string",
+              "person_id": "number",
+              "value": "number"
+            }
+          }
+        }
+      }
+    },
+    "marketing": {
+      "name": "Marketing Tools",
+      "modules": {
+        "mailchimp": {
+          "addSubscriber": {
+            "version": 3,
+            "description": "Adds email subscriber",
+            "parameters": {
+              "list_id": "string",
+              "email_address": "string",
+              "merge_fields": "object"
+            }
+          },
+          "createCampaign": {
+            "version": 3,
+            "description": "Creates email campaign",
+            "parameters": {
+              "type": "string",
+              "recipients": "object",
+              "settings": "object"
+            }
+          }
+        },
+        "activecampaign": {
+          "createContact": {
+            "version": 3,
+            "description": "Creates contact",
+            "parameters": {
+              "email": "string",
+              "firstName": "string",
+              "lastName": "string"
+            }
+          },
+          "addTag": {
+            "version": 3,
+            "description": "Adds tag to contact",
+            "parameters": {
+              "contact": "string",
+              "tag": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

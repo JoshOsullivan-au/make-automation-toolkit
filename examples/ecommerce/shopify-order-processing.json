@@ -1,0 +1,274 @@
+{
+  "metadata": {
+    "version": 2,
+    "name": "Shopify Order Processing Automation",
+    "description": "Processes new Shopify orders: checks inventory, updates spreadsheet, sends notifications, and creates shipping labels"
+  },
+  "modules": [
+    {
+      "id": 1,
+      "module": "shopify.watchOrders",
+      "version": 2,
+      "parameters": {
+        "status": "paid",
+        "limit": 10,
+        "fields": ["id", "name", "email", "total_price", "line_items", "shipping_address"]
+      }
+    },
+    {
+      "id": 2,
+      "module": "google-sheets.searchRows",
+      "version": 4,
+      "parameters": {
+        "spreadsheetId": "YOUR_INVENTORY_SPREADSHEET_ID",
+        "sheetId": "Inventory",
+        "filter": {
+          "conditions": [[
+            {
+              "a": "SKU",
+              "b": "{{1.line_items[].sku}}",
+              "o": "in"
+            }
+          ]]
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "flow.router",
+      "version": 1,
+      "parameters": {
+        "routes": [
+          {
+            "id": 1,
+            "label": "Sufficient Stock",
+            "filter": {
+              "name": "Stock Check",
+              "conditions": [[
+                {
+                  "a": "{{2.stock_quantity}}",
+                  "b": "{{1.line_items[].quantity}}",
+                  "o": "greaterEqual"
+                }
+              ]]
+            }
+          },
+          {
+            "id": 2,
+            "label": "Low Stock",
+            "filter": {
+              "name": "Stock Alert",
+              "conditions": [[
+                {
+                  "a": "{{2.stock_quantity}}",
+                  "b": "{{1.line_items[].quantity}}",
+                  "o": "less"
+                }
+              ]]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "module": "google-sheets.addRow",
+      "version": 4,
+      "parameters": {
+        "spreadsheetId": "YOUR_ORDERS_SPREADSHEET_ID",
+        "sheetId": "Orders",
+        "values": {
+          "Order ID": "{{1.id}}",
+          "Order Number": "{{1.name}}",
+          "Customer Email": "{{1.email}}",
+          "Total": "{{1.total_price}}",
+          "Items": "{{join(1.line_items[].name; ', ')}}",
+          "Status": "Processing",
+          "Date": "{{formatDate(now; 'YYYY-MM-DD HH:mm:ss')}}"
+        }
+      },
+      "route": 1
+    },
+    {
+      "id": 5,
+      "module": "openai.createCompletion",
+      "version": 1,
+      "parameters": {
+        "model": "gpt-4",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are a customer service representative. Write a personalized order confirmation email that is friendly and professional."
+          },
+          {
+            "role": "user",
+            "content": "Customer: {{1.customer.first_name}} {{1.customer.last_name}}\nOrder: {{1.name}}\nItems: {{join(1.line_items[].name; ', ')}}\nTotal: ${{1.total_price}}"
+          }
+        ],
+        "temperature": 0.7,
+        "max_tokens": 500
+      },
+      "route": 1
+    },
+    {
+      "id": 6,
+      "module": "sendgrid.sendEmail",
+      "version": 1,
+      "parameters": {
+        "to": "{{1.email}}",
+        "from": "orders@yourstore.com",
+        "subject": "Order {{1.name}} Confirmed - Thank You!",
+        "html": "{{5.choices[0].message.content}}",
+        "categories": ["order-confirmation", "transactional"]
+      },
+      "route": 1
+    },
+    {
+      "id": 7,
+      "module": "http.makeRequest",
+      "version": 3,
+      "parameters": {
+        "url": "https://api.shippingprovider.com/labels",
+        "method": "POST",
+        "headers": [
+          {
+            "name": "Authorization",
+            "value": "Bearer YOUR_SHIPPING_API_KEY"
+          },
+          {
+            "name": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "to_address": {
+            "name": "{{1.shipping_address.name}}",
+            "street1": "{{1.shipping_address.address1}}",
+            "street2": "{{1.shipping_address.address2}}",
+            "city": "{{1.shipping_address.city}}",
+            "state": "{{1.shipping_address.province_code}}",
+            "zip": "{{1.shipping_address.zip}}",
+            "country": "{{1.shipping_address.country_code}}"
+          },
+          "parcel": {
+            "weight": "{{sum(1.line_items[].grams) / 1000}}",
+            "length": 10,
+            "width": 8,
+            "height": 4
+          },
+          "service": "standard"
+        }
+      },
+      "route": 1
+    },
+    {
+      "id": 8,
+      "module": "slack.postMessage",
+      "version": 2,
+      "parameters": {
+        "channel": "#orders",
+        "text": "New order {{1.name}} processed successfully! 📦",
+        "attachments": [
+          {
+            "color": "good",
+            "fields": [
+              {
+                "title": "Customer",
+                "value": "{{1.customer.first_name}} {{1.customer.last_name}}",
+                "short": true
+              },
+              {
+                "title": "Total",
+                "value": "${{1.total_price}}",
+                "short": true
+              },
+              {
+                "title": "Shipping Label",
+                "value": "<{{7.data.label_url}}|Download Label>",
+                "short": false
+              }
+            ]
+          }
+        ]
+      },
+      "route": 1
+    },
+    {
+      "id": 9,
+      "module": "slack.postMessage",
+      "version": 2,
+      "parameters": {
+        "channel": "#inventory-alerts",
+        "text": "⚠️ LOW STOCK ALERT for Order {{1.name}}",
+        "attachments": [
+          {
+            "color": "warning",
+            "fields": [
+              {
+                "title": "Order",
+                "value": "{{1.name}}",
+                "short": true
+              },
+              {
+                "title": "Customer",
+                "value": "{{1.email}}",
+                "short": true
+              },
+              {
+                "title": "Items Affected",
+                "value": "{{join(1.line_items[].name; ', ')}}",
+                "short": false
+              },
+              {
+                "title": "Action Required",
+                "value": "Manual review needed - insufficient stock",
+                "short": false
+              }
+            ]
+          }
+        ]
+      },
+      "route": 2
+    },
+    {
+      "id": 10,
+      "module": "sendgrid.sendEmail",
+      "version": 1,
+      "parameters": {
+        "to": "inventory@yourstore.com",
+        "from": "alerts@yourstore.com",
+        "subject": "🚨 Urgent: Stock Issue for Order {{1.name}}",
+        "html": "<h2>Low Stock Alert</h2><p>Order {{1.name}} cannot be fulfilled due to insufficient stock.</p><p><strong>Customer:</strong> {{1.email}}</p><p><strong>Items:</strong> {{join(1.line_items[].name; ', ')}}</p><p>Please review inventory and contact customer if needed.</p>",
+        "priority": "high"
+      },
+      "route": 2
+    }
+  ],
+  "connections": [
+    {"source": 1, "target": 2},
+    {"source": 2, "target": 3},
+    {"source": 3, "target": 4, "route": 1},
+    {"source": 3, "target": 9, "route": 2},
+    {"source": 4, "target": 5},
+    {"source": 5, "target": 6},
+    {"source": 6, "target": 7},
+    {"source": 7, "target": 8},
+    {"source": 9, "target": 10}
+  ],
+  "settings": {
+    "sequential": false,
+    "maxErrors": 3,
+    "scheduling": {
+      "interval": 300
+    }
+  },
+  "errorHandlers": [
+    {
+      "moduleId": 7,
+      "type": "retry",
+      "maxRetries": 3,
+      "interval": 60,
+      "backoff": true
+    }
+  ]
+}

@@ -1,142 +1,115 @@
 # Make.com Automation Toolkit 🚀
 
-Advanced toolkit for automating Make.com scenario development, including AI-powered builders, API integrations, and enterprise deployment tools.
+A comprehensive toolkit for building Make.com (formerly Integromat) automations, including JSON blueprint generators, module references, and AI-powered scenario builders.
 
-## 🎯 Overview
+## 🎯 Features
 
-This repository provides a comprehensive suite of tools to transform Make.com from a manual workflow builder into a programmatically managed automation platform. Built for businesses scaling their automation capabilities, particularly those implementing AI-driven workflow optimization.
+- **Complete Module Reference**: All Make.com modules categorized by type
+- **JSON Blueprint Generator**: Convert natural language to Make.com scenarios
+- **AI Agent Builder**: Create intelligent automation agents
+- **MCP Integration**: Claude Desktop integration for scenario generation
+- **Error Handling Patterns**: Production-ready error management
+- **Best Practices**: Performance optimization and security guidelines
 
-## 📋 Features
+## 📚 Documentation
 
-### Core Capabilities
-- **Scenario Template Generator** - Programmatically create Make scenarios via API
-- **AI-Powered Scenario Builder** - Generate scenarios from natural language using MCP
-- **Make Bridge Development Pipeline** - Local development and CI/CD integration
-- **Custom App Factory** - Streamline creation of reusable Make.com apps
-- **Scenario Monitoring & Self-Healing** - Automated maintenance and optimization
-- **Blueprint Version Control** - Git-like versioning for scenarios
-- **Multi-Tenant Management** - Deploy and manage scenarios across multiple clients
+- [Getting Started](./docs/getting-started.md)
+- [Module Reference](./modules/README.md)
+- [Blueprint Generator](./generator/README.md)
+- [Examples](./examples/README.md)
+- [AI Agents](./ai-agents/README.md)
 
-### Quick Links
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [API Documentation](./docs/api-reference.md)
-- [Templates Library](./templates/)
-- [Examples](./examples/)
-
-## 🛠️ Installation
+## 🚀 Quick Start
 
 ```bash
 # Clone the repository
 git clone https://github.com/JoshOsullivan-au/make-automation-toolkit.git
-cd make-automation-toolkit
 
 # Install dependencies
+cd make-automation-toolkit
 npm install
 
-# Setup environment variables
-cp .env.example .env
-# Edit .env with your Make.com credentials
+# Run the blueprint generator
+node generator/cli.js
 ```
 
-## 🚀 Quick Start
+## 📦 What's Included
 
-### 1. Configure Make.com API Access
+### Module Categories
+
+- **Core Tools**: Webhooks, HTTP, Flow Control, Data Stores
+- **Productivity**: Google Workspace, Microsoft 365, Notion
+- **Communication**: Slack, Discord, Email, SMS
+- **CRM/Sales**: Salesforce, HubSpot, Pipedrive
+- **E-commerce**: Shopify, WooCommerce, Stripe
+- **Database**: MongoDB, MySQL, PostgreSQL, Airtable
+- **AI/ML**: OpenAI, Anthropic, Google AI
+- **Social Media**: Twitter, Facebook, LinkedIn, Instagram
+- **File Storage**: Google Drive, Dropbox, Box
+- **Project Management**: Asana, Trello, ClickUp, Monday.com
+- **Development**: GitHub, GitLab, Jira
+- **Analytics**: Google Analytics, Mixpanel
+- **Marketing**: Mailchimp, SendGrid, ActiveCampaign
+- **Accounting**: QuickBooks, Xero, Wave
+- **Support**: Zendesk, Intercom, Freshdesk
+
+## 🛠️ Tools Included
+
+1. **JSON Blueprint Generator** - Convert descriptions to Make.com scenarios
+2. **Module Catalog** - Complete reference of all available modules
+3. **Connection Builder** - Visual tool for creating module connections
+4. **Error Handler Generator** - Add robust error handling to scenarios
+5. **AI Agent Framework** - Build intelligent automation agents
+6. **MCP Server** - Claude Desktop integration
+7. **Validation Tools** - Verify blueprint syntax and structure
+8. **Migration Scripts** - Convert from other platforms
+
+## 📝 Usage Examples
+
+### Generate a Simple Scenario
+
 ```javascript
-const MakeClient = require('./src/api/make-client');
+const { ScenarioBuilder } = require('./generator');
 
-const client = new MakeClient({
-  apiKey: process.env.MAKE_API_KEY,
-  zone: 'eu2.make.com' // Your Make zone
-});
+const scenario = new ScenarioBuilder()
+  .addWebhook('Customer Order')
+  .addGoogleSheets('Update Inventory')
+  .addSlack('Notify Team')
+  .build();
+
+console.log(JSON.stringify(scenario, null, 2));
 ```
 
-### 2. Generate a Scenario from Template
+### Create an AI Agent
+
 ```javascript
-const { ScenarioGenerator } = require('./src/generators/scenario-generator');
+const { AIAgentBuilder } = require('./ai-agents');
 
-const generator = new ScenarioGenerator(client);
-const scenario = await generator.fromTemplate('crm-sync', {
-  clientName: 'ACME Corp',
-  interval: 15
-});
+const agent = new AIAgentBuilder()
+  .setName('Customer Support Agent')
+  .addTool('searchKnowledgeBase')
+  .addTool('createTicket')
+  .addTool('sendResponse')
+  .build();
 ```
-
-### 3. Deploy with AI Assistance
-```javascript
-const { AIScenarioBuilder } = require('./src/ai/scenario-builder');
-
-const builder = new AIScenarioBuilder();
-const scenario = await builder.generate(
-  "Create a workflow that syncs new Salesforce leads to Google Sheets and sends a Slack notification"
-);
-```
-
-## 📁 Project Structure
-
-```
-make-automation-toolkit/
-├── src/
-│   ├── api/              # Make.com API wrappers
-│   ├── generators/       # Scenario generation tools
-│   ├── ai/              # AI-powered builders
-│   ├── bridge/          # Make Bridge integration
-│   ├── monitoring/      # Scenario monitoring tools
-│   ├── templates/       # Core template engine
-│   └── utils/           # Utility functions
-├── templates/           # Scenario templates library
-├── examples/           # Example implementations
-├── tests/              # Test suites
-├── docs/               # Documentation
-└── config/             # Configuration files
-```
-
-## 🔧 Core Components
-
-### Scenario Template Generator
-Create scenarios programmatically from JSON templates:
-- Pre-built templates for common workflows
-- Dynamic variable substitution
-- Bulk deployment capabilities
-
-### AI Scenario Builder
-Natural language to Make.com scenario conversion:
-- Claude MCP integration
-- Iterative refinement
-- Auto-documentation
-
-### Monitoring & Self-Healing
-Automated scenario maintenance:
-- Health checks and alerts
-- Auto-restart on failure
-- Performance optimization
-
-## 📚 Documentation
-
-- [API Reference](./docs/api-reference.md)
-- [Template Development Guide](./docs/template-guide.md)
-- [MCP Integration Setup](./docs/mcp-setup.md)
-- [Best Practices](./docs/best-practices.md)
-- [Troubleshooting](./docs/troubleshooting.md)
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🏗️ Built By
+## 🌟 Support
 
-[Workabl AI](https://workabl.ai) - Helping growth-stage businesses eliminate inefficiency and scale without hiring by deploying AI agents that replace entire workflows.
+If you find this toolkit helpful, please give it a star ⭐
 
-## 🔗 Resources
-
-- [Make.com Developer Documentation](https://developers.make.com)
-- [Make.com API Reference](https://developers.make.com/api-documentation)
-- [MCP Server Documentation](https://developers.make.com/mcp-server)
+For questions or support:
+- Open an [issue](https://github.com/JoshOsullivan-au/make-automation-toolkit/issues)
+- Check the [documentation](./docs)
+- Join our [Discord community](https://discord.gg/makeautomation)
 
 ---
 
-**Ready to automate your automation?** Star this repo and get started with the examples in the [Quick Start](#quick-start) section!
+Built with ❤️ for the Make.com community
