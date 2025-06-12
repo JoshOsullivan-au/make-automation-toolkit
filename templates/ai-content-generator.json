@@ -1,0 +1,298 @@
+{
+  "metadata": {
+    "version": 2,
+    "description": "AI-powered content generation workflow using OpenAI"
+  },
+  "name": "{{clientName}} - AI Content Generator",
+  "scheduling": {
+    "interval": {{interval}}
+  },
+  "modules": [
+    {
+      "id": 1,
+      "module": "google-sheets.searchRows",
+      "version": 2,
+      "parameters": {
+        "spreadsheetId": "{{contentCalendarSheetId}}",
+        "sheetName": "Content Calendar",
+        "filter": [
+          [
+            {
+              "a": "Status",
+              "b": "Pending",
+              "o": "text:equal"
+            }
+          ]
+        ],
+        "limit": 5
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "openai.createChatCompletion",
+      "version": 1,
+      "parameters": {
+        "model": "gpt-4",
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are a professional content writer specializing in {{industry}}. Create engaging, SEO-optimized content."
+          },
+          {
+            "role": "user",
+            "content": "Create a {{1.ContentType}} about {{1.Topic}}. Target audience: {{1.TargetAudience}}. Keywords: {{1.Keywords}}. Length: {{1.WordCount}} words."
+          }
+        ],
+        "temperature": 0.7,
+        "max_tokens": 2000
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "openai.createImage",
+      "version": 1,
+      "parameters": {
+        "prompt": "Create a professional featured image for an article about {{1.Topic}} in {{industry}} style",
+        "size": "1024x1024",
+        "quality": "standard",
+        "n": 1
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 150
+        }
+      }
+    },
+    {
+      "id": 4,
+      "module": "google-docs.createDocument",
+      "version": 1,
+      "parameters": {
+        "name": "{{1.ContentType}} - {{1.Topic}} - {{formatDate(now, 'YYYY-MM-DD')}}",
+        "content": "{{2.choices[0].message.content}}",
+        "folderId": "{{contentFolderId}}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 600,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 5,
+      "module": "google-sheets.updateRow",
+      "version": 2,
+      "parameters": {
+        "spreadsheetId": "{{contentCalendarSheetId}}",
+        "sheetName": "Content Calendar",
+        "rowNumber": "{{1.rowNumber}}",
+        "values": {
+          "Status": "Generated",
+          "GeneratedDate": "{{now}}",
+          "DocumentURL": "{{4.webViewLink}}",
+          "ImageURL": "{{3.data[0].url}}",
+          "WordCount": "{{length(2.choices[0].message.content)}}"
+        }
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 900,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 6,
+      "module": "slack.postMessage",
+      "version": 1,
+      "parameters": {
+        "channel": "#{{contentChannel}}",
+        "text": "📝 New content generated!\n\n*Type:* {{1.ContentType}}\n*Topic:* {{1.Topic}}\n*Document:* {{4.webViewLink}}\n*Status:* Ready for review",
+        "attachments": [
+          {
+            "image_url": "{{3.data[0].url}}",
+            "title": "Featured Image"
+          }
+        ]
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 1200,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 7,
+      "module": "flow.router",
+      "version": 1,
+      "parameters": {},
+      "routes": [
+        {
+          "name": "Blog Post",
+          "filter": {
+            "conditions": [
+              [
+                {
+                  "a": "{{1.ContentType}}",
+                  "b": "Blog Post",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "name": "Social Media",
+          "filter": {
+            "conditions": [
+              [
+                {
+                  "a": "{{1.ContentType}}",
+                  "b": "Social Media",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          }
+        }
+      ],
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 600,
+          "y": 300
+        }
+      }
+    },
+    {
+      "id": 8,
+      "module": "wordpress.createPost",
+      "version": 1,
+      "parameters": {
+        "url": "{{wordpressUrl}}",
+        "status": "draft",
+        "title": "{{1.Topic}}",
+        "content": "{{2.choices[0].message.content}}",
+        "categories": "{{1.Category}}",
+        "tags": "{{split(1.Keywords, ',')}}",
+        "featured_media": "{{3.data[0].url}}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 900,
+          "y": 250
+        }
+      }
+    },
+    {
+      "id": 9,
+      "module": "buffer.createUpdate",
+      "version": 1,
+      "parameters": {
+        "profile_ids": "{{bufferProfileIds}}",
+        "text": "{{substring(2.choices[0].message.content, 0, 280)}}",
+        "media": {
+          "link": "{{3.data[0].url}}"
+        },
+        "scheduled_at": "{{1.PublishDate}}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 900,
+          "y": 350
+        }
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "moduleId": 1
+      },
+      "target": {
+        "moduleId": 2
+      }
+    },
+    {
+      "source": {
+        "moduleId": 1
+      },
+      "target": {
+        "moduleId": 3
+      }
+    },
+    {
+      "source": {
+        "moduleId": 2
+      },
+      "target": {
+        "moduleId": 4
+      }
+    },
+    {
+      "source": {
+        "moduleId": 4
+      },
+      "target": {
+        "moduleId": 5
+      }
+    },
+    {
+      "source": {
+        "moduleId": 5
+      },
+      "target": {
+        "moduleId": 6
+      }
+    },
+    {
+      "source": {
+        "moduleId": 4
+      },
+      "target": {
+        "moduleId": 7
+      }
+    },
+    {
+      "source": {
+        "moduleId": 7,
+        "route": 0
+      },
+      "target": {
+        "moduleId": 8
+      }
+    },
+    {
+      "source": {
+        "moduleId": 7,
+        "route": 1
+      },
+      "target": {
+        "moduleId": 9
+      }
+    }
+  ]
+}

@@ -1,0 +1,290 @@
+{
+  "metadata": {
+    "version": 2,
+    "description": "Generic webhook processor with error handling and response"
+  },
+  "name": "{{clientName}} - Webhook Processor",
+  "scheduling": {
+    "interval": null
+  },
+  "modules": [
+    {
+      "id": 1,
+      "module": "http.webhook",
+      "version": 1,
+      "parameters": {
+        "name": "{{webhookName}}",
+        "dataStructure": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "required": true
+            },
+            "data": {
+              "type": "object",
+              "required": true
+            }
+          }
+        }
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "flow.router",
+      "version": 1,
+      "parameters": {},
+      "routes": [
+        {
+          "name": "Process Order",
+          "filter": {
+            "name": "Order Action",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.action}}",
+                  "b": "process_order",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "name": "Update Customer",
+          "filter": {
+            "name": "Customer Action",
+            "conditions": [
+              [
+                {
+                  "a": "{{1.action}}",
+                  "b": "update_customer",
+                  "o": "text:equal"
+                }
+              ]
+            ]
+          }
+        },
+        {
+          "name": "Default",
+          "filter": {
+            "name": "Default Route",
+            "conditions": []
+          }
+        }
+      ],
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 3,
+      "module": "http.makeRequest",
+      "version": 1,
+      "parameters": {
+        "url": "{{apiEndpoint}}/orders",
+        "method": "POST",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer {{apiKey}}"
+        },
+        "body": "{{1.data}}"
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 600,
+          "y": -150
+        },
+        "restore": {
+          "expect": {
+            "method": {
+              "label": "POST"
+            }
+          }
+        },
+        "expect": [
+          {
+            "name": "url",
+            "type": "text",
+            "label": "URL",
+            "required": true
+          },
+          {
+            "name": "method",
+            "type": "select",
+            "label": "Method",
+            "required": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "module": "salesforce.updateRecord",
+      "version": 1,
+      "parameters": {
+        "object": "Contact",
+        "recordId": "{{1.data.customerId}}",
+        "fields": {
+          "LastModifiedDate": "{{now}}",
+          "Status__c": "{{1.data.status}}"
+        }
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 600,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 5,
+      "module": "http.webhookResponse",
+      "version": 1,
+      "parameters": {
+        "status": 400,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "success": false,
+          "error": "Unknown action: {{1.action}}"
+        }
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 600,
+          "y": 150
+        }
+      }
+    },
+    {
+      "id": 6,
+      "module": "flow.aggregator",
+      "version": 1,
+      "parameters": {
+        "sourceModule": 2,
+        "targetStructure": [
+          {
+            "name": "responses",
+            "spec": [
+              {
+                "name": "route",
+                "type": "text"
+              },
+              {
+                "name": "result",
+                "type": "any"
+              }
+            ]
+          }
+        ]
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 900,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 7,
+      "module": "http.webhookResponse",
+      "version": 1,
+      "parameters": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "success": true,
+          "message": "Action completed successfully",
+          "data": "{{6.array}}"
+        }
+      },
+      "mapper": {},
+      "metadata": {
+        "designer": {
+          "x": 1200,
+          "y": 0
+        }
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": {
+        "moduleId": 1
+      },
+      "target": {
+        "moduleId": 2
+      }
+    },
+    {
+      "source": {
+        "moduleId": 2,
+        "route": 0
+      },
+      "target": {
+        "moduleId": 3
+      }
+    },
+    {
+      "source": {
+        "moduleId": 2,
+        "route": 1
+      },
+      "target": {
+        "moduleId": 4
+      }
+    },
+    {
+      "source": {
+        "moduleId": 2,
+        "route": 2
+      },
+      "target": {
+        "moduleId": 5
+      }
+    },
+    {
+      "source": {
+        "moduleId": 3
+      },
+      "target": {
+        "moduleId": 6
+      }
+    },
+    {
+      "source": {
+        "moduleId": 4
+      },
+      "target": {
+        "moduleId": 6
+      }
+    },
+    {
+      "source": {
+        "moduleId": 6
+      },
+      "target": {
+        "moduleId": 7
+      }
+    }
+  ]
+}
